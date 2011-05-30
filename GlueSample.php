@@ -1,4 +1,20 @@
-<html><head><title>inPHP as glue sample</title></head>
+<?php /** 
+ * inPHP, declarative reflective performance oriented MVC framework with built-in ORM
+ * Copyright (c) 2011 Jan Groothuijse, inLogic (inlogic.nl)
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * See <http://www.gnu.org/licenses/>.
+ */ 
+?><html><head><title>inPHP as glue sample</title></head>
 <body><h1>inPHP as glue sample</h1><p>To show that the framework can be used as librairy of components</p>
 <em>The source code behind this file is more usefull to view, the output is just to show it works.</em>
 <h2>ORM</h2><p>The ORM is most likely the most usefull part of the framework when used as glue</p>
@@ -7,7 +23,12 @@ use \inPHP\ORM\Model, \inPHP\ORM\DAO, \inPHP\ORM\DQ, \inPHP\ORM\MF;
 
 // Some database settings the only 'required' configuration so far.
 inPHP\Conf::set('DB.default', new inPHP\ORM\DB\DB('P:localhost', 'user', 'passwd', 'schema'));
+// Not require, but usefull:
 inPHP\Conf::set('MySQLDB.printQueries', true);
+// very safe, but very slow; delete these lines to use default local cache (APC)
+// and default shared cache (Memcache backed by DB) if you have them installed.
+\inPHP\Conf::set('Cache.shared', 'inPHP\Cache\NoSharedCache');
+\inPHP\Conf::set('Cache.local', 'inPHP\Cache\NoLocalCache');
 /** A model definition */
 final class Foo extends Model {	// final to stop auto adding a class attribute
 	/** @inPHP\ORM\PrimaryKey; */
