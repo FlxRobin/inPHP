@@ -6,7 +6,7 @@
 use \inPHP\ORM\Model, \inPHP\ORM\DAO, \inPHP\ORM\DQ, \inPHP\ORM\MF;
 
 // Some database settings the only 'required' configuration so far.
-inPHP\Conf::set('DB.default', new inPHP\ORM\DB\DB('P:localhost', 'root', 'ozg97oXi', 'hotel'));
+inPHP\Conf::set('DB.default', new inPHP\ORM\DB\DB('P:localhost', 'user', 'passwd', 'schema'));
 inPHP\Conf::set('MySQLDB.printQueries', true);
 /** A model definition */
 final class Foo extends Model {	// final to stop auto adding a class attribute
