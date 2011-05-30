@@ -19,7 +19,7 @@ namespace inPHP\ORM;
 class Column extends \inPHP\ChanableProperties { protected $type, $notNull, $autoIncrement, $fk; }
 class ForeignKey extends \inPHP\ChanableProperties { protected $name, $target; }
 /**
- * Generates LRS based on defined IModels.
+ * Generates LRS based on defined IModels. Generated code is as close to the SQL standard as possible
  * TODO implement drop tables option, including dropping all foreignKeys before dropping tables.
  */
 class LRSGenerator implements \inPHP\Control\IRunnable {

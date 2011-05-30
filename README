@@ -9,6 +9,7 @@ Contents of this document:
 	2 Functionality
 	3 File layout
 	4 Contact
+	5 Major TODO's
 
 0 Requirements
 PHP 5.3, who could resists namespaces and closures. 
@@ -58,7 +59,7 @@ Models are supplied with metadata about how to translate them to records, this h
 by adding annotations to the doccomments.
 This metadata includes primary keys and relations with other models.
 To create Model, you can implement IModel or extend Model. All models are required to have
-at least one property with a PrimaryKey annotation.
+at least one property with a PrimaryKey annotation see (2.4).
 
 2.3 Views
 Views in this framework are generally generated and not hand writter by the user; they are
@@ -68,8 +69,50 @@ Adding view-related metadata to the model classes could be considered a breach w
 it could also be viewed as Aspect Oriented Programming defining Viewing as an aspect, 
 or it could be viewed as pragmatic webprogramming.
 
-2.4 ORM
+2.4 Annotations
+inPHP is a declarative framework, it uses annotations that can supply classes with
+meta information usefull in Aspect Oriented Programming. One of the main users of these declarations
+is the ORM. Since PHP doesn't support annotations in any other way, we write ours in DocComments. 
+This framework has its own annotation parser, which is really simple and looks a lot
+like PHP. in fact @SomeModel('something'); just gets translated to 'new SomeModel('something')';
+Annotations start with @, end with ; and are supposed to have a constructor call without new 
+between them.
+Most classes however live in namespaces, so to annotate a property as primary key, we use
+@inPHP\ORM\PrimaryKey;
+Because annotations are in DocComments, they can apply to anything that PHP's reflection can
+get the DocComment for, including classes. But annotating classes can and should be substituted
+with implementing interfaces; because that will be much faster. For methods and properties however
+annotations can not be substituted by an already existing language feature.
+
+2.5 ORM
+2.5.1 Model declaration
+To classify as Model, a class has to implement IModel, the easiest way to do this is to extend
+Model. Once you've extended Model, you need to define properties as protected (so Model can acces
+them) and annotate them appropriatly.
+At least one of those properties has to become the primary key; we use annotations to mark a property
+as primarykey: /** @inPHP\ORM\PrimaryKey; */ protected $name;
+All properties will also have something called a MetaType, this is a type that vaguely defines the 
+type of the property in a sort of abstract way. The default MetaType is a inPHP\ORM\String which
+translate to varchar(255) in a MySQL database; to override this MetaType simple annotate the property
+with another MetaType, like inPHP\ORM\Integer, inPHP\ORM\FloatingPoint or inPHP\ORM\Bool.
+/** @inPHP\ORM\Integer */ protected $count;
+These are all simple scalar MetaTypes, but MetaType don't have to be simple, a Model is also
+a MetaType, and using it translates to a foreign reference in a table. You don't have to worry
+about the foreign class having multiple PK property, the framework gets all of them, and stores
+them in an object of the foreign class.
+Example class:
+class SomeModel extends Model {
+	/** @inPHP\ORM\PrimaryKey; @inPHP\ORM\Integer; */
+	protected $id;
+	/** @SomeSpace\Model\AnotherModel; */
+	protected $another;	// when queried, will be populated by a model of that class.
+}
+See also inPHP\ORM\Many, inPHP\ORM\Enum in inPHP.php.
+
+2.5.2 Querying models
 Using the models defined earlier, we have enough information to generate queries.
+
+Select
 Queries are captured by the DQ (Data query) objects, these can translate to SQL select queries.
 Function names in the DQ class match the clauses a select query, and are meant to make the creation
 of such queries very compact:
@@ -81,6 +124,8 @@ as multiple attributes in the datastore, a foreign reference to a Model with a c
 be one model property, but will have multiple attributes to point to that foreign table.
 To initiate an MF with a specific name, just do MF::name();
 DQ::select(MF::name()); would result in a query with name in the SELECT clause.
+
+Where
 The where clause does not need just fields, it want predicates, or filters, here QF comes in.
 A QF or QueryFilter captures a filter, it translates as follows: QF[a, op, b] => a op b
 To ease creation, they can be created of their own 'a' MF::name()->filter('=', 0);
@@ -88,6 +133,8 @@ will result in a QF[a:name, op:=, b:0] => name = 0.
 So DQ::select($n = MF::name())->where($n->filter('=', 0);
 You may have noted there is yet to be something to fill in the WHERE clause; thats because it
 usualy gets set automaticly.
+
+Data Acces Object
 A Data Acces Object, DAO is an object glueing Models to a Datastore; a model does not understand
 what a datastore is, but the DAO does, and therefore the DAO sets the source (or FROM clause) in
 the DQ. To get a DAO, use the following: $dao = DAO::ModelName(); This works by a Visiting Factory,
@@ -101,6 +148,16 @@ $fetcher(function ($model, $record) { print_r($model); });
 It is obvious why it didn't return a list, this way we only have one record in memory, and
 don't at all have to build and then walk through lists.
 Note: future versions will likely provide an object which is both Invokable and Iteratable.
+See also inPHP\ORM\SF, inPHP\ORM\DSFunc, inPHP\ORM\LeftJoin, inPHP\ORM\DAO::join in inPHP.php.
+
+2.5.3 LRS Generation
+After all that metadata has been added as annotations to the Model classes, we can now generate
+the LRS that this ORM expects to see in the Database, and thats why inPHP\ORM\LRSGenerator was
+added as an extension. Its an IRunnable script. 
+It can be called with 'php inPHP.php \\inLogic\\ORM\\LRSGenerator' 
+All extra args passed are meant to be either files to included (with model definitions), or
+the argument --apply, which makes the script not just print the LRS, but apply it to the DB.
+
 
 3 File layout
 README				you're reading it now
@@ -115,3 +172,9 @@ HotelExample.php	A provingground test application, another example of how to use
 
 4 Contact info
 For any info, question, suggestion, comments, bugs contact me at jan@inlogic.nl, or use github.
+
+5 Major TODO's
+This framework is not only not tested well enough, its also feature incomplete (hence v0.1)
+Missing:
+	Iterable query results
+	ManyOnMany relation
