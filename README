@@ -1,0 +1,117 @@
+inPHP is a declarative reflective performance oriented MVC framework with built-in ORM
+v0.1 This version is an early testing alpha. Don't use on production machines without thorough testing
+
+This framework can be used full-stack framework for handling web requests(1), executing shell scripts(2)
+and as glue framework library(3) incorporated in somethingelse entirely.
+Contents of this document:
+	0 Requirements
+	1 Basic usage
+	2 Functionality
+	3 File layout
+	4 Contact
+
+0 Requirements
+PHP 5.3, who could resists namespaces and closures. 
+
+1 Basic usage
+1.1 Handling web requests
+To use inPHP to handle web requests, a webserver has to serve inPHP.php. If you want the urlrouting to
+work, you have to setup the webserver to forward a whole range of requests to inPHP.php
+This can be done by urlrewriting found in almost all major webservers.
+When urlrewriting works, the controller used by the framework to handle the request becomes dynamic,
+'somesite.com/Foo.html' is handled by an IController implementation named Foo, that IController
+is passed all slash-seperated arguments between its name and the extension of the url:
+'somesite.com/Foo/arg1/arg2.html' => Foo->main(array(arg1, arg2));
+
+1.2 Executing shell scripts
+inPHP can act as an entry point for shell scripts using the framework. 
+The command 'php inPHP.php \\inPHP\\Control\\SomeScript' instantiates inPHP\Control\SomeScript and
+calls run() with all the arguments passed after its own name (none in this case).
+The double slashes are the result of PHP using an escape character as its namespace seperator.
+One IRunnable shell script is included by default:
+'php inPHP.php \\inPHP\\Control\\Help \\inPHP\\Control\\SomeScript' would show the documentation
+of SomeScript, which could be usefull for looking up arguments of a script.
+
+1.3 Glue framework library
+inPHP can also be used as a bunch of classes, especially the ORM can be very usefull outside of the
+fullstack usage. Using it as glue is very simple, just include the inPHP.php in another php file,
+that way it won't execute (this trick works so long as you don't name the called script inPHP.php). It
+will just define a bunch of classes, allowing you to use those parts you find usefull. Note: it will
+install an autoload function.
+
+2 Functionality
+2.1 Controllers
+'Showing a list of cats', 'Adding a cat' we call such things 'actions'; controllers
+have the end responsiblity for 'doing' such actions.
+A request-url will map to an controller and arguments pass to it. For example:
+/ListCat/tiger.html => (new ListCat())->main(array('tiger'));
+For their task, Controllers instantiate and use Models to acces the persistance layer 
+and Views to create a presentable response.
+Making such a controller is easy, just implement inPHP\Control\IController, or extend 
+inPHP\ControlController. The request url won't contain any namespace information,
+so all controllers must live in the same namespace, specified by Conf::set('App.controlSpace');
+
+2.2 Models
+An instance of a model represents information in the persistence layer of the application,
+usualy the database.
+Models are supplied with metadata about how to translate them to records, this happens
+by adding annotations to the doccomments.
+This metadata includes primary keys and relations with other models.
+To create Model, you can implement IModel or extend Model. All models are required to have
+at least one property with a PrimaryKey annotation.
+
+2.3 Views
+Views in this framework are generally generated and not hand writter by the user; they are
+derived from the model, by allowing view-related metadata to be added to the model.
+The Controller only has to deal with (parametirized by model) View Generators.
+Adding view-related metadata to the model classes could be considered a breach with MVC,
+it could also be viewed as Aspect Oriented Programming defining Viewing as an aspect, 
+or it could be viewed as pragmatic webprogramming.
+
+2.4 ORM
+Using the models defined earlier, we have enough information to generate queries.
+Queries are captured by the DQ (Data query) objects, these can translate to SQL select queries.
+Function names in the DQ class match the clauses a select query, and are meant to make the creation
+of such queries very compact:
+DQ::select() returns a new DQ object, with all parameters passed used as fields.
+on this DQ object, we can also call where(), groupBy(), having(), orderBy(), all will have 
+all arguments passed to them used as the appropriate values in the DQ.
+MF stands for ModelField, it is a field that exists as one property in the model, but may exists
+as multiple attributes in the datastore, a foreign reference to a Model with a composite key would
+be one model property, but will have multiple attributes to point to that foreign table.
+To initiate an MF with a specific name, just do MF::name();
+DQ::select(MF::name()); would result in a query with name in the SELECT clause.
+The where clause does not need just fields, it want predicates, or filters, here QF comes in.
+A QF or QueryFilter captures a filter, it translates as follows: QF[a, op, b] => a op b
+To ease creation, they can be created of their own 'a' MF::name()->filter('=', 0);
+will result in a QF[a:name, op:=, b:0] => name = 0.
+So DQ::select($n = MF::name())->where($n->filter('=', 0);
+You may have noted there is yet to be something to fill in the WHERE clause; thats because it
+usualy gets set automaticly.
+A Data Acces Object, DAO is an object glueing Models to a Datastore; a model does not understand
+what a datastore is, but the DAO does, and therefore the DAO sets the source (or FROM clause) in
+the DQ. To get a DAO, use the following: $dao = DAO::ModelName(); This works by a Visiting Factory,
+by as long as you just extend Model, you don't need to worry about that.
+Its the DAO that we give our queries to, and then it will return something.
+$fetcher = $dao->query(DQ::select());
+The variable is called fetcher, and not list, vector or anything like that, thats because the dao
+return a callback, a callback which takes another callback (which we can define) to do anything
+usefull with the result:
+$fetcher(function ($model, $record) { print_r($model); });
+It is obvious why it didn't return a list, this way we only have one record in memory, and
+don't at all have to build and then walk through lists.
+Note: future versions will likely provide an object which is both Invokable and Iteratable.
+
+3 File layout
+README				you're reading it now
+inPHP.php			the core library of inPHP, including all absolutely required framework functionality
+inPHP/*				all extensions to inPHP, placed in a directory matching their namespace
+					with the namespace seperator replaced by the directory seperator
+App.php				Place to either put your entire app, or set the config so the rest of your app
+					can be lazely found by the framework, or staticly include everything you need.
+					Its autoincluded when inPHP is not in glue mode.
+GlueSample.php		A demo of this frameworks glue capabilities, an example of how to use this framework
+HotelExample.php	A provingground test application, another example of how to use this framework
+
+4 Contact info
+For any info, question, suggestion, comments, bugs contact me at jan@inlogic.nl, or use github.
