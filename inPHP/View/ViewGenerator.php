@@ -135,20 +135,4 @@ class ViewGenerator {
 		return $result;
 	}
 }
-/** To capture all to the view relevant properties, of a property, of a model. 
-class ViewProperty extends ChanableProperties { // Meant to be speeded up by cache
-	protected $viewContainer, $editContainer, $label, $hrName, $div, $td, 
-																$th, $inList, $tab;
-	// functions written out as means to speed up the app.
-	function metaType() { return $this->metaType; }
-	function viewContainer() { return $this->viewContainer; }
-	function editContainer() { return $this->editContainer; }
-	function label() { return $this->label; }
-	function hrName() { return $this->hrName; }
-	function div() { return $this->div; }
-	function td() { return $this->td; }
-	function th() { return $this->th; }
-	function inList() { return $this->inList; }
-	function tab() { return $this->tab; }
-}*/
 ?>
