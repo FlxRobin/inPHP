@@ -131,5 +131,4 @@
 		function template() {	return $this->template;	}
 		function extension() { return 'html'; }
 	}
-
 ?>
