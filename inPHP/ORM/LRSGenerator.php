@@ -94,9 +94,11 @@ class LRSGenerator implements \inPHP\Control\IRunnable {
 				$alters[] = $alter;
 			}			
 		}
+		$errors = 0;
 		foreach ($creates as $table => $create) { print $create; if ($apply) try {
 					$result = DB\ADB::get()->set($create); $result();
-				} catch (ORMException $e) {
+				} catch (ORMException $e) { 
+					$errors++;
 					print "\nError occurred trying to create table ".$table;
 					print get_class($e)." with message ".$e->getMessage();
 					print $e->getTraceAsString();
@@ -105,11 +107,13 @@ class LRSGenerator implements \inPHP\Control\IRunnable {
 		foreach ($alters as $alter) { print $alter; if ($apply) try {
 					$result = DB\ADB::get()->set($alter); $result();
 				} catch (ORMException $e) {
+					$errors++;
 					print "\nError occurred trying to alter table with following defintion:".$alter;
 					print get_class($e)." with message ".$e->getMessage();
 					print $e->getTraceAsString();
 				} 
 		}
+		return $errors;
 	}
 }
 

@@ -45,7 +45,7 @@ class AnnotationChecker implements \inPHP\Control\IRunnable {
 			}
 		}
 		print "\n".$errors." errors occurred\n";
-		exit($errors);
+		return $errors;
 	}
 	// http://php.net/manual/en/class.errorexception.php
 	/** @inPHP\Verification\AnnotationChecker; <-- for testing purposes */

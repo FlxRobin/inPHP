@@ -876,7 +876,7 @@ class DefaultHome implements IController { private $t,$o; function __construct()
 interface IOutputHandler { function start($key); function finish(); }
 /** Doesn't cache, doesn't buffer, does nothing at all */
 class OutputHandler implements IOutputHandler { function start($key) {} function finish() {} }
-interface IRunnable { function run($args); }
+interface IRunnable { /** @return an exit status */ function run($args); }
 class Help implements IRunnable { function run($args) { if (!isset($args[0])||!class_exists($args[0])) 
 	print "Add an IRunnable as parameter\n"; else { $r = new \ReflectionClass($args[0]);
 		if (in_array('inPHP\\Control\\IRunnable', $r->getInterfaceNames())) print "\n".$args[0]."\n".
@@ -956,10 +956,10 @@ class MemcacheSharedCache implements ISharedCache { private $link;
 					$controller->template()->tail(); $controller->outputHandler()->finish();
 			} else { $error = Conf::get('App.404', 'FileNotFound'); $error(); }
 			} catch (\Exception $e) { ExceptionCaught($e); }
-		} else { if ($argc==1) echo "Missing arg0, the name of an IRunnable class\n"; // CLI mode
+		} else { $e=1; if ($argc==1) echo "Missing arg0, the name of an IRunnable class\n"; // CLI mode
 			else { $class = $argv[1]; if (class_exists($class) && in_array('inPHP\Control\IRunnable', 
-				class_implements($class))){$runnable=new $class();$runnable->run(array_slice($argv,2));}
-			else echo "arg0 ".$class." is not an implementation of inPHP\Control\IRunnable"; }
+				class_implements($class))){$runnable=new $class();$e=$runnable->run(array_slice($argv,2));}
+			else echo "arg0 ".$class." is not an implementation of inPHP\Control\IRunnable"; exit($e);}
 		} 
 	}
 }
