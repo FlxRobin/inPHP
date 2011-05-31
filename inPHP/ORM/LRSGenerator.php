@@ -27,6 +27,7 @@ class LRSGenerator implements \inPHP\Control\IRunnable {
 	 * permission to actually execute all of the generated SQL scripts, and apply the LRS on
 	 * your database. */
 	function run($args) {
+		\inPHP\includeAll(\inPHP\modelSpace());
 		$tables = array(); // tablename => array(columnname => shorttype)
 		$tablePKs = array(); $apply = false; $drop = false;
 		foreach ($args as $fileName) if ($fileName=='--apply') $apply = true; 

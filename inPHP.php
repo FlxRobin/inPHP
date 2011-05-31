@@ -32,7 +32,14 @@ ini_set('unserialize_callback_func', '__autoload');
 		} /** sets (without checking) a value for a conf key */
 		static function set($name, $value) { self::$map[$name] = $value; }
 	} /** class to save configuration in. */
-	class ConfException extends \Exception {}
+	class ConfException extends \Exception {} 
+	function modelSpace() { return Conf::get('App.modelSpace','Model');}  
+	function controlSpace() { return Conf::get('App.controlSpace','Control');}
+	function appSpaces() { return array_merge(array('inPHP'), Conf::get('App.spaces', array()));}
+	function includeAll($space='.') { if (is_dir($space)) foreach(new \DirectoryIterator($space) as $f) 
+		if (strpos($f->getFilename(), '.')!==0) { if ($f->isFile() && substr($f->getFilename(), 
+		-4)=='.php') include_once $space.DIRECTORY_SEPARATOR.$f->getFilename(); 
+		else if ($f->isDir()) includeAll($space.DIRECTORY_SEPARATOR.$f->getFilename()); }}
 } namespace inPHP\Reflection {
 	/** Abstract utility for having and accessing annotations */
 	abstract class Annotated { protected $annotations;
@@ -86,7 +93,7 @@ class ModelReflection extends \inPHP\Reflection\Annotated {
 			Cache::local()->set(__CLASS__, self::$classMap);
 		} return self::$classMap[$name];
 	} /** returns the names of the properties that is the primary key of this model */
-	function primaryKey() { print $this->name; return !empty($this->primaryKey) ? $this->primaryKey :
+	function primaryKey() { return !empty($this->primaryKey) ? $this->primaryKey :
 		self::get(get_parent_class($this->name))->primaryKey(); }
 	/** returns names of direct children of this model */
 	function children() { return $this->children; } /** returns names of all descendants */
@@ -578,8 +585,7 @@ class DAO implements IDAO {	private $class, $table, $reflection, $classField = n
 		DB\ADB::get($newCon, $con)->update($this->table->name(), &$toData, &$f, false);
 	}
 	/** Visiting factory, visiting to support extending the DOA and making the model choose */
-	static function __callStatic($name, $args) { if (!isset($args[0])) $name = 
-			\inPHP\Conf::get('App.modelSpace',''). $name; 
+	static function __callStatic($name,$args){if(!isset($args[0]))$name =\inPHP\modelSpace().$name; 
 		if (!($result = Cache::local()-> get('DAO'.$name))) { $model = new $name; 
 		$result=$model->dao();Cache::local()->set('DAO'.$name,$result); }return $result; }
 }/** represents multiple models on the other side of this relation */
@@ -889,7 +895,7 @@ abstract class Cache { protected static $local, $shared; /** get local (fastest)
 	} /** get shared (slower, but more intelligent(cache can be invalidated)) cache */
 	static function shared() {
 		if (!isset(self::$shared)) { $class = \inPHP\Conf::get('Cache.shared', 'inPHP\Cache\MemcacheSharedCache');
-		self::$shared = new $class(); } return self::$shared; } } class CachedKey extends 
+		self::$shared = new $class(); } return self::$shared; } } final class CachedKey extends 
 \inPHP\ORM\Model {/** @inPHP\ORM\PrimaryKey; */protected $invalidationKey;protected $cacheKey; }
 /** Implementation (trivial) of a simple fast local-only cache using APC */
 class APCLocalCache implements ILocalCache { function get($key) { return apc_fetch($key); }
@@ -940,7 +946,7 @@ class MemcacheSharedCache implements ISharedCache { private $link;
 			$ext = substr($url, $split+1); $home = empty($args) || $args[0]=='page';
 			// page exception enables home page to use paging without need go /HomeController/page/2.html
 			try { $cClass= $home ? Conf::get('App.home', '\inPHP\Control\DefaultHome')
-								 : Conf::get('App.controlSpace', '') . $args[0];
+								 : \inPHP\controlSpace() . $args[0];
 			if (in_array('inPHP\Control\IController', class_implements($cClass, true)))
 				if ((($controller= Cache::local()->get($cClass))
 				 || (($controller = new $cClass()) && Cache::local()->set($cClass, $controller)==null))

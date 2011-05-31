@@ -4,15 +4,18 @@ v0.1 This version is an early testing alpha. Don't use on production machines wi
 This framework can be used full-stack framework for handling web requests(1), executing shell scripts(2)
 and as glue framework library(3) incorporated in somethingelse entirely.
 Contents of this document:
-	0 Requirements
+	0 Dependancies
 	1 Basic usage
 	2 Functionality
 	3 File layout
 	4 Contact
 	5 Major TODO's
 
-0 Requirements
-PHP 5.3, who could resists namespaces and closures. 
+0 Dependancies
+Required:
+	PHP 5.3, who could resists namespaces and closures. 
+Recommended:
+	APC, Memcached, MySQL
 
 1 Basic usage
 1.1 Handling web requests
@@ -80,8 +83,10 @@ between them.
 Most classes however live in namespaces, so to annotate a property as primary key, we use
 @inPHP\ORM\PrimaryKey;
 Because annotations are in DocComments, they can apply to anything that PHP's reflection can
-get the DocComment for, including classes. But annotating classes can and should be substituted
-with implementing interfaces; because that will be much faster. For methods and properties however
+get the DocComment for, including classes. But annotating classes can be substituted
+with implementing interfaces; because that will be much faster to reflect, however, if the interface
+is lazy loaded, it will require one more fileread when parsing the class, so when parsing of the class
+is more important than reflecting, use annotations for classes too. For methods and properties
 annotations can not be substituted by an already existing language feature.
 
 2.5 ORM

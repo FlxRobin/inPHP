@@ -16,10 +16,10 @@
  */
 	namespace Hotel;
 	// Provingground application
-	inPHP\Conf::set('DB.default', new inPHP\ORM\DB\DB('P:localhost', 'user', 'passwd', 'schema'));
-	inPHP\Conf::set('App.home', 'Hotel\HotelHome');
-	inPHP\Conf::set('App.controlSpace', 'Hotel\\');
-	inPHP\Conf::set('App.modelSpace', 'Hotel\\');
+	\inPHP\Conf::set('DB.default', new \inPHP\ORM\DB\DB('P:localhost', 'user', 'passwd', 'schema'));
+	\inPHP\Conf::set('App.home', 'Hotel\HotelHome');
+	\inPHP\Conf::set('App.controlSpace', 'Hotel\\');
+	\inPHP\Conf::set('App.modelSpace', 'Hotel\\');
 	
 	use inPHP\ORM\Model, inPHP\ORM\DQ, inPHP\ORM\MF, inPHP\ORM\DAO, inPHP\ORM\Enum;
 	use inPHP\View\ViewGenerator;
