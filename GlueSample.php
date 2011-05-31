@@ -14,6 +14,8 @@
  * 
  * See <http://www.gnu.org/licenses/>.
  */ 
+// This file has 'free code' in it, using \inPHP\includeAll() will be broken by this,
+// so when using the fullstack framework, its best to remove this file.
 ?><html><head><title>inPHP as glue sample</title></head>
 <body><h1>inPHP as glue sample</h1><p>To show that the framework can be used as librairy of components</p>
 <em>The source code behind this file is more usefull to view, the output is just to show it works.</em>

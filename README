@@ -1,8 +1,8 @@
 inPHP is a declarative reflective performance oriented MVC framework with built-in ORM
 v0.1 This version is an early testing alpha. Don't use on production machines without thorough testing
 
-This framework can be used full-stack framework for handling web requests(1), executing shell scripts(2)
-and as glue framework library(3) incorporated in somethingelse entirely.
+This framework can be used full-stack framework for handling web requests(1.1), executing shell scripts(1.2)
+and as glue framework library(1.3) incorporated in somethingelse entirely.
 Contents of this document:
 	0 Dependancies
 	1 Basic usage
