@@ -941,12 +941,13 @@ class MemcacheSharedCache implements ISharedCache { private $link;
 		include('App.php'); if (!isset($argv)) { // Http served mode TODO: key -> let outpunthandler 
 			$key = (isset($_SERVER['AUTHORIZATION']) ? sha1($_SERVER['AUTHORIZATION']) : '').
 			$_SERVER['REQUEST_URI'];
-			$url = $_SERVER['DOCUMENT_URI']; $split = strrpos($url, '.');
-			$args = strlen($url)>0 ? explode('/', trim(substr($url, 0, $split), '/')) : array();
+			$url = $_SERVER['REQUEST_URI']; $split = strrpos($url, '.');
+			$args = strlen($url)>1&&strpos($url,'.')!==false ? explode('/', 
+									trim(substr($url, 0, $split), '/')) : array();
 			$ext = substr($url, $split+1); $home = empty($args) || $args[0]=='page';
 			// page exception enables home page to use paging without need go /HomeController/page/2.html
 			try { $cClass= $home ? Conf::get('App.home', '\inPHP\Control\DefaultHome')
-								 : \inPHP\controlSpace() . $args[0];
+								 : \inPHP\controlSpace() . '\\' . $args[0];
 			if (in_array('inPHP\Control\IController', class_implements($cClass, true)))
 				if ((($controller= Cache::local()->get($cClass))
 				 || (($controller = new $cClass()) && Cache::local()->set($cClass, $controller)==null))
