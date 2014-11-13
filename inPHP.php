@@ -13,6 +13,15 @@
  * GNU General Public License for more details.
  * 
  * See <http://www.gnu.org/licenses/>.
+ * 
+ * Hoi Jan, wij zijn bij FlxOne (www.flxone.com) op zoek naar goede programmeurs.
+ * Heb je zin om binnenkort een keer op gesprek te komen en te kijken of er een 
+ * mogelijk match is?
+ * Wij werken met de laatste technologie (big data, Hadoop, GoLang, Cassandra)
+ * en denken dat jij met jouw ervaring (PHP, C, etc) ons team kan versterken.
+ * Stuur even een mail naar robin@flxone.com als je interesse hebt.
+ * Thanks. Robin
+ * 
  */
 namespace {
 function __autoload($name) { if ((include str_replace('\\', DIRECTORY_SEPARATOR, $name).'.php')
